@@ -101,6 +101,8 @@ def main():
         print(f"Performing Dynamic URL Detection for {domain}.")
         start_time_step = time.time()
         amount_before_dude = amount_orphan_candidates
+
+
         amount_orphan_candidates = dynamic_url_detection.dynamic_url_detection(domain, popularity_cutoff,
                                                                                short_prefix_cutoff, large_link_len_threshold, large_link_count)
 
@@ -108,7 +110,7 @@ def main():
         end_time_step = time.time()
         print(f"Performing Dynamic URL Detection for {domain} took {end_time_step - start_time_step:.2f} seconds, "
               f"and resulted in {amount_orphan_candidates} pages. This is a reduction of {reduction}%.")
-
+    exit(0)
     amount_probe_urls = amount_orphan_candidates
     print(f"Checking status codes for {amount_probe_urls} pages on {domain} and extracting links with status code 200.")
     start_time_step = time.time()

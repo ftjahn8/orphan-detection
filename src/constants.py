@@ -12,7 +12,7 @@ CHMOD_USER_ONLY_FILE = 0o600
 # directory names
 DATA_DIRECTORY = "../Data/"
 ARCHIVE_DATA_DIRECTORY = DATA_DIRECTORY + "Archive_Data/"   # Location of downloaded web archive data
-RESULT_DIRECTORY = DATA_DIRECTORY + "Result/"               # Location for results of the process
+RESULT_DIRECTORY = DATA_DIRECTORY + "Results/"               # Location for results of the process
 TMP_DIRECTORY = DATA_DIRECTORY + "tmp/"                     # Location for temporary files of the process
 
 DOMAIN_DIRECTORY = RESULT_DIRECTORY + "{DOMAIN}/"  # Folder to store the results for the domain being processed
@@ -46,5 +46,5 @@ LIST_OF_FILTER_FILE_ENDINGS = ["jpg", "gif", "css", "svg", "png", "pdf", "jpeg",
                                "heif", "indd", "ai", "eps", "jpe", "jif", "jfif", "jfi", "tif", "dib", "heic", "ind",
                                "indt", "jp2", "j2k", "jpf", "jpx", "jpm", "mj2", "svgz", "m4a", "m4v", "f4v", "f4a",
                                "m4b", "m4r", "f4b", "3gp", "3gp2", "3g2", "3gpp", "3gpp2", "oga", "ogv", "ogx", "wma",
-                               "flv", "mp2", "mpeg", "mpe", "mpv", "m4p", "qt", "swf"]
+                               "flv", "mp2", "mpeg", "mpe", "mpv", "m4p", "qt", "swf", "otf"]
 FILTER_REGEX = f".+\.({'|'.join(LIST_OF_FILTER_FILE_ENDINGS)}).*$"
