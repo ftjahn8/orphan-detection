@@ -2,12 +2,11 @@ import time
 
 from tqdm import tqdm
 
-import constants
-import util
-from util_data_objects import ProbeParameters
+from orphan_detection import constants
+from orphan_detection import util
 
 
-def check_status_codes(domain: str, probe_args: ProbeParameters) -> int:
+def check_status_codes(domain: str, probe_args: util.ProbeParameters) -> int:
     probe_candidates_path = constants.CANDIDATES_TO_PROBE_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
     probe_candidates = util.read_lines_from_file(probe_candidates_path)
 

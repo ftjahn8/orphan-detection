@@ -1,7 +1,7 @@
 import datetime
 
-import util
-import constants
+from orphan_detection import constants
+from orphan_detection import util
 
 
 def get_orphan_candidates(zipped_archive_file: str, current_sitemap_filter: datetime.date, domain: str) -> int:

@@ -1,5 +1,5 @@
-import constants
-import util
+from orphan_detection import constants
+from orphan_detection import util
 
 
 def initialize_data_directory(domain: str) -> None:

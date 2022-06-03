@@ -3,16 +3,15 @@ import datetime
 import sys
 import time
 
+from orphan_detection import constants
+from orphan_detection import util
+
 import initialize_data_directory
 import get_orphan_candidates
 import download
-import constants
-import util
 import filter_file_extensions
 import check_status_codes
 import dynamic_url_detection
-from util_data_objects import DUDEParameters, ProbeParameters
-
 
 ARG_FILTER_DATE_ERROR = "[ARG ERROR] Value ARG_VALUE for arg current_sitemap_filter does not fit any supported format."
 
@@ -61,14 +60,14 @@ def main():
 
     # dude flag & params
     enable_dude = args.dude_flag
-    dude_params = DUDEParameters(popularity_cutoff=args.pc,
-                                 short_prefix_cutoff=args.st,
-                                 large_link_count=args.lc,
-                                 large_link_len_threshold=args.lt,
-                                 pc_value_threshold=2)
+    dude_params = util.DUDEParameters(popularity_cutoff=args.pc,
+                                      short_prefix_cutoff=args.st,
+                                      large_link_count=args.lc,
+                                      large_link_len_threshold=args.lt,
+                                      pc_value_threshold=2)
 
     # probe params
-    probe_params = ProbeParameters(timeout=args.probe_timeout, interval=args.probe_interval)
+    probe_params = util.ProbeParameters(timeout=args.probe_timeout, interval=args.probe_interval)
 
     # call main procedure
     orphan_page_detection(domain=domain,
@@ -79,7 +78,7 @@ def main():
 
 
 def orphan_page_detection(domain: str, pre_download_date: str | None, current_sitemap_filter: datetime.date,
-                          enable_dude: True, dude_params: DUDEParameters, probe_params: ProbeParameters):
+                          enable_dude: True, dude_params: util.DUDEParameters, probe_params: util.ProbeParameters):
     start_time = time.time()
 
     # create needed directories
@@ -98,7 +97,8 @@ def orphan_page_detection(domain: str, pre_download_date: str | None, current_si
 
     print(f"Extracting candidate orphan pages for {domain}.")
     start_time_step = time.time()
-    amount_orphan_candidates = get_orphan_candidates.get_orphan_candidates(archive_data_file, current_sitemap_filter, domain)
+    amount_orphan_candidates = get_orphan_candidates.get_orphan_candidates(archive_data_file, current_sitemap_filter,
+                                                                           domain)
     end_time_step = time.time()
     print(f"Extracting candidate orphan pages for {domain} took {end_time_step - start_time_step:.2f} seconds, "
           f"and resulted in {amount_orphan_candidates} pages.")

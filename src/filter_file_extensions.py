@@ -1,5 +1,5 @@
-import util
-import constants
+from orphan_detection import constants
+from orphan_detection import util
 
 
 def filter_file_extensions(domain: str) -> int:

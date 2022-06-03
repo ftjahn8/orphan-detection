@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+__all__ = ["DUDEParameters", "ProbeParameters"]
+
 
 @dataclass(frozen=True, slots=True)
 class DUDEParameters:

@@ -1,8 +1,7 @@
 from typing import List, Tuple, Dict, Set
 
-import constants
-import util
-from util_data_objects import DUDEParameters
+from orphan_detection import constants
+from orphan_detection import util
 
 
 HTTP_SCHEMA = "http://"
@@ -11,7 +10,7 @@ HTTPS_SCHEMA = "https://"
 DUDE_RETURN_TYPE = Tuple[List[str], List[str], List[str]]
 
 
-def dynamic_url_detection(domain: str, dude_params: DUDEParameters) -> int:
+def dynamic_url_detection(domain: str, dude_params: util.DUDEParameters) -> int:
     candidates_path = constants.CANDIDATES_TO_PROBE_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
     candidates = util.read_lines_from_file(candidates_path)
 
@@ -73,7 +72,7 @@ def identify_subdomains(url_list: List[str], domain: str) -> Dict[str, List[str]
     return domain_lookup
 
 
-def dude_main(url_list: List[str], domain: str, dude_params: DUDEParameters) -> DUDE_RETURN_TYPE:
+def dude_main(url_list: List[str], domain: str, dude_params: util.DUDEParameters) -> DUDE_RETURN_TYPE:
     url_list, back_transformation_lookup = remove_schema(url_list)
     subdomain_lookup = identify_subdomains(list(url_list), domain)
     orphans, excluded, prefixes = [], [], []
@@ -96,7 +95,7 @@ def dude_main(url_list: List[str], domain: str, dude_params: DUDEParameters) -> 
     return orphans_with_schema, excluded_with_schema, prefixes
 
 
-def dude_subdomain(url_list: Set[str], domain: str, dude_params: DUDEParameters,
+def dude_subdomain(url_list: Set[str], domain: str, dude_params: util.DUDEParameters,
                    cutoff_value: float, prev_prefix: str = "") -> DUDE_RETURN_TYPE:
     orphans = []
     excluded = []
