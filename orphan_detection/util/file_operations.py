@@ -5,12 +5,16 @@ from typing import List
 
 from orphan_detection import constants
 
-__all__ = ["create_directory", "read_lines_from_file", "write_lines_to_file"]
+__all__ = ["create_directory", "is_file", "read_lines_from_file", "write_lines_to_file"]
 
 
 def create_directory(path: str) -> None:
     if not os.path.exists(path):
         os.mkdir(path)
+
+
+def is_file(path) -> bool:
+    return os.path.exists(path) and os.path.isfile(path)
 
 
 def save_to_file(path: str, content: str, user_restricted: bool = True) -> None:

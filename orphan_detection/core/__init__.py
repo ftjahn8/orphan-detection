@@ -13,7 +13,8 @@ __all__ = ["orphaned_pages_detection"]
 
 
 def orphaned_pages_detection(domain: str, pre_download_date: str | None, current_sitemap_filter: datetime.date,
-                             enable_dude: True, dude_params: util.DUDEParameters, probe_params: util.ProbeParameters):
+                             enable_dude: True, dude_params: util.DUDEParameters,
+                             probe_params: util.ProbeParameters) -> int:
     start_time = time.time()
 
     # create needed directories
@@ -29,8 +30,12 @@ def orphaned_pages_detection(domain: str, pre_download_date: str | None, current
         end_time_step = time.time()
         print(f"Retrieving archive data for {domain} took {end_time_step - start_time_step:.2f} seconds.")
     else:
-        print(f"Skipped download archive data for {domain} and use data from {pre_download_date}.")
+        print(f"Skipped download archive data for {domain} and use data from date {pre_download_date}.")
         archive_data_file = constants.ZIPPED_ARCHIVE_NAME_TEMPLATE.format(DOMAIN=domain, DATE=pre_download_date)
+
+    if not util.is_file(archive_data_file):
+        print(f"[Error] No archive data file found at path {archive_data_file}. Stopped procedure.")
+        return 1
 
     print(f"Extracting candidate orphan pages for {domain}.")
     start_time_step = time.time()
@@ -61,7 +66,7 @@ def orphaned_pages_detection(domain: str, pre_download_date: str | None, current
         end_time_step = time.time()
         print(f"Performing Dynamic URL Detection for {domain} took {end_time_step - start_time_step:.2f} seconds, "
               f"and resulted in {amount_orphan_candidates} pages. This is a reduction of {reduction:.2f}%.")
-    exit(1)
+    return 1
     amount_probe_urls = amount_orphan_candidates
     print(f"Checking status codes for {amount_probe_urls} pages on {domain} and extracting links with status code 200.")
     start_time_step = time.time()
@@ -75,3 +80,4 @@ def orphaned_pages_detection(domain: str, pre_download_date: str | None, current
     print()
     print("Done!")
     print(f"Total procedure for {domain} took  {end_time - start_time:.2f} seconds.")
+    return 0
