@@ -1,13 +1,13 @@
-
 import time
 
 from tqdm import tqdm
 
-import util
 import constants
+import util
+from util_data_objects import ProbeParameters
 
 
-def check_status_codes(domain: str, delay_between_two_requests: float, timeout_after: float) -> int:
+def check_status_codes(domain: str, probe_args: ProbeParameters) -> int:
     probe_candidates_path = constants.CANDIDATES_TO_PROBE_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
     probe_candidates = util.read_lines_from_file(probe_candidates_path)
 
@@ -18,7 +18,7 @@ def check_status_codes(domain: str, delay_between_two_requests: float, timeout_a
     probe_candidates_shuffled = probe_candidates.copy()
     probe_candidates_shuffled = util.shuffle_candidates_list(probe_candidates_shuffled)
     for url in tqdm(probe_candidates_shuffled):
-        status_code, error_msg = util.probe_url(url, timeout_after)
+        status_code, error_msg = util.probe_url(url, timeout_after=probe_args.timeout)
 
         if status_code == 200:
             potential_orphans[url] = url
@@ -27,7 +27,7 @@ def check_status_codes(domain: str, delay_between_two_requests: float, timeout_a
             error_responses[url] = f"{error_msg:25s} {url}"
 
         all_status_codes[url] = f"{status_code:03} {url}"
-        time.sleep(delay_between_two_requests)
+        time.sleep(probe_args.interval)
 
     potential_orphans_sorted = [potential_orphans[url] for url in probe_candidates if url in potential_orphans]
     all_status_codes_sorted = [all_status_codes[url] for url in probe_candidates]

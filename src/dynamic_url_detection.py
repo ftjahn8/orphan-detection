@@ -1,39 +1,64 @@
 from typing import List, Tuple, Dict, Set
 
-import util
 import constants
+import util
+from util_data_objects import DUDEParameters
 
 
-def dynamic_url_detection(domain: str, popularity_cutoff: float, short_prefix_cutoff: int, large_link_len_threshold: int, large_link_count: int) -> int:
+HTTP_SCHEMA = "http://"
+HTTPS_SCHEMA = "https://"
+
+DUDE_RETURN_TYPE = Tuple[List[str], List[str], List[str]]
+
+
+def dynamic_url_detection(domain: str, dude_params: DUDEParameters) -> int:
     candidates_path = constants.CANDIDATES_TO_PROBE_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
     candidates = util.read_lines_from_file(candidates_path)
-    orphan_candidates, excluded_candidates = dude(candidates, domain)
-    print(len(orphan_candidates), len(excluded_candidates))
-    # orphan_candidates, excluded_candidates = execute_dude_process(candidates, len(domain), popularity_cutoff, short_prefix_cutoff, large_link_len_threshold, large_link_count)
 
-    orphan_candidates = list(orphan_candidates)
-    excluded_candidates = list(excluded_candidates)
+    orphan_candidates, excluded_candidates, identified_prefixes = dude_main(candidates, domain, dude_params)
+
     orphan_candidates.sort()
     excluded_candidates.sort()
+    identified_prefixes.sort()
+
     excluded_path = constants.DUDE_EXCLUDED_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
+    prefixes_path = constants.DUDE_EXCLUDED_PREFIXES_NAME_TEMPLATE.format(DOMAIN=domain)
+
     util.write_lines_to_file(candidates_path, orphan_candidates)
     util.write_lines_to_file(excluded_path, excluded_candidates)
+    util.write_lines_to_file(prefixes_path, identified_prefixes)
+
     return len(orphan_candidates)
 
 
-def remove_https_schema(url_list: List[str]) -> Tuple[List[str], Dict[str, str]]:
-    back_lookup = {}
-    cleaned_url_list = []
+def remove_schema(url_list: List[str]) -> Tuple[set[str], dict[str, list[str]]]:
+    back_transformation_lookup = {}
+    cleaned_urls = set()
     for url in url_list:
-        if url.startswith("https://"):
-            short_url = url[len("https://"):]
-            back_lookup[short_url] = "https://"
-            cleaned_url_list.append(short_url)
-        elif url.startswith("http://"):
-            short_url = url[len("http://"):]
-            back_lookup[short_url] = "http://"
-            cleaned_url_list.append(short_url)
-    return cleaned_url_list, back_lookup
+        if url.startswith(HTTPS_SCHEMA):
+            schema = HTTPS_SCHEMA
+            short_url = url[len(HTTPS_SCHEMA):]
+        elif url.startswith(HTTP_SCHEMA):
+            schema = HTTP_SCHEMA
+            short_url = url[len(HTTP_SCHEMA):]
+        else:
+            schema = ""
+            short_url = url
+        cleaned_urls.add(short_url)
+
+        if short_url in back_transformation_lookup:
+            back_transformation_lookup[short_url].append(schema)
+        else:
+            back_transformation_lookup[short_url] = [schema]
+    return cleaned_urls, back_transformation_lookup
+
+
+def transform_short_urls_back(url_list: List[str], transformation_lookup: Dict[str, List[str]]) -> List[str]:
+    transformed_list = []
+    for short_url in url_list:
+        for schema in transformation_lookup[short_url]:
+            transformed_list.append(f"{schema}{short_url}")
+    return transformed_list
 
 
 def identify_subdomains(url_list: List[str], domain: str) -> Dict[str, List[str]]:
@@ -44,73 +69,66 @@ def identify_subdomains(url_list: List[str], domain: str) -> Dict[str, List[str]
         if sub_domain in domain_lookup:
             domain_lookup[sub_domain].append(url)
         else:
-            domain_lookup[sub_domain] = []
-
+            domain_lookup[sub_domain] = [url]
     return domain_lookup
 
 
-def dude(url_list: List[str], domain: str) -> Tuple[List[str], List[str]]:
-    url_list, back_lookup = remove_https_schema(url_list)
-    subdomain_lookup = identify_subdomains(url_list, domain)
-    orphans, excluded = [], []
+def dude_main(url_list: List[str], domain: str, dude_params: DUDEParameters) -> DUDE_RETURN_TYPE:
+    url_list, back_transformation_lookup = remove_schema(url_list)
+    subdomain_lookup = identify_subdomains(list(url_list), domain)
+    orphans, excluded, prefixes = [], [], []
 
     for subdomain, subdomain_urls in subdomain_lookup.items():
-        print("===================", subdomain)
-        orphans_a, excluded_a = dude_exp(subdomain_urls, subdomain, len(subdomain_urls) * 0.05)
-        orphans += orphans_a
-        excluded += excluded_a
-    return orphans, excluded
+        pc_cutoff_value = len(subdomain_urls) * dude_params.popularity_cutoff
+        if pc_cutoff_value < dude_params.pc_value_threshold:
+            orphans += subdomain_urls
+            continue
+
+        orphans_subdomain, excluded_subdomain, prefixes_subdomain =\
+            dude_subdomain(set(subdomain_urls), subdomain, dude_params, pc_cutoff_value)
+
+        orphans += orphans_subdomain
+        excluded += excluded_subdomain
+        prefixes += prefixes_subdomain
+
+    orphans_with_schema = transform_short_urls_back(orphans, back_transformation_lookup)
+    excluded_with_schema = transform_short_urls_back(excluded, back_transformation_lookup)
+    return orphans_with_schema, excluded_with_schema, prefixes
 
 
-def dude_exp(url_list: List[str], domain: str, cutoff: float, prev_prefix="", ) -> Tuple[List[str], List[str]]:
+def dude_subdomain(url_list: Set[str], domain: str, dude_params: DUDEParameters,
+                   cutoff_value: float, prev_prefix: str = "") -> DUDE_RETURN_TYPE:
     orphans = []
     excluded = []
-    candidates = set(url_list)
+    identified_prefixes = []
+    candidates = url_list
 
     while True:
-        if len(candidates) < cutoff:
+        if len(candidates) < cutoff_value:
             orphans += list(candidates)
             break
-        prefix, c_with_prefix, c_without_prefix = execute_dude_step(candidates, len(domain), cutoff, 20, 0)
+
+        prefix, c_with_prefix, c_without_prefix = execute_dude_step(candidates, len(domain), cutoff_value,
+                                                                    dude_params.large_link_len_threshold,
+                                                                    dude_params.large_link_count)
 
         if prefix is None or prefix == prev_prefix:
-            print("===", prev_prefix)
             orphans += list(candidates)
             break
 
-        if len(prefix) < len(domain) + 15:
-            orp, exc = dude_exp(list(c_with_prefix), domain, cutoff, prefix)
-            orphans += orp
-            exc += exc
+        if len(prefix) < len(domain) + dude_params.short_prefix_cutoff:
+            orp_part, exc_part, prefixes_part = dude_subdomain(c_with_prefix, domain, dude_params, cutoff_value, prefix)
+            orphans += orp_part
+            excluded += exc_part
+            identified_prefixes += prefixes_part
             candidates = c_without_prefix
 
         else:
-            print("===", prefix)
+            identified_prefixes.append(prefix)
             excluded += list(c_with_prefix)
             candidates = c_without_prefix
 
-    return orphans, excluded
-
-
-
-def execute_dude_process(url_list: List[str], domain_len: int, popularity_cutoff: float, short_prefix_cutoff: int, large_link_len_threshold: int, large_link_count: int):
-    blocklist = set()
-    candidates = set(url_list)
-    while True:
-        prefix, c_with_prefix, c_without_prefix = execute_dude_step(candidates, domain_len, popularity_cutoff,
-                                                                    large_link_len_threshold, large_link_count)
-
-        print(prefix, len(c_with_prefix), len(c_without_prefix))
-        if prefix is None:
-            break
-
-        if len(prefix) < domain_len + 8 + short_prefix_cutoff:
-            candidates = c_without_prefix
-        else:
-            blocklist.union(c_with_prefix)
-            candidates = c_without_prefix
-
-    return candidates, blocklist
+    return orphans, excluded, identified_prefixes
 
 
 def execute_dude_step(url_list: Set[str], domain_len: int, popularity_cutoff: float,
@@ -123,7 +141,6 @@ def execute_dude_step(url_list: Set[str], domain_len: int, popularity_cutoff: fl
     avg_len, max_len = get_average_and_max_len(url_list)
     counters = count_characters_per_position(large_urls, max_len)
     prefix = generate_prefix(counters, avg_len)
-    print(prefix)
     return shorten_prefix(prefix, url_list, popularity_cutoff)
 
 
@@ -152,14 +169,11 @@ def generate_prefix(counters: List[Dict[str, int]], avg_len: int) -> str:
     return generated_prefix
 
 
-def shorten_prefix(prefix: str, url_list: Set[str], popularity_cutoff: float) -> Tuple[str, Set[str], Set[str]]:
-    # cutoff_value = len(url_list) * popularity_cutoff
-
+def shorten_prefix(prefix: str, url_list: Set[str], pc_cutoff_value: float) -> Tuple[str, Set[str], Set[str]]:
     while True:
         candidates_with_prefix = {url for url in url_list if prefix in url}
         candidates_without_prefix = url_list - candidates_with_prefix
 
-        if len(candidates_with_prefix) >= popularity_cutoff or len(candidates_with_prefix) == len(url_list):
+        if len(candidates_with_prefix) >= pc_cutoff_value or len(candidates_with_prefix) == len(url_list):
             return prefix, candidates_with_prefix, candidates_without_prefix
-
         prefix = prefix[:-1]
