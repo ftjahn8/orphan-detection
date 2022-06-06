@@ -1,16 +1,12 @@
-import datetime
-import json
-import re
-from typing import List
 
 import requests
-from bs4 import BeautifulSoup
 
-from orphan_detection import util, constants
+from orphan_detection import util
+from orphan_detection import constants
+
 import time
-import hashlib
 
-from orphan_detection.analysis.hash import fnv_1a
+from orphan_detection.analysis.similarity_score_functions import calculate_similarity_score
 
 
 def retrieve_page_size():
@@ -114,8 +110,8 @@ def get_type():
             continue
 
         time.sleep(1)
-        hash_name_current = hashlib.md5(url.encode("utf-8")).hexdigest()
-        hash_name_past = hashlib.md5(f"{url}_{last_seen}".encode("utf-8")).hexdigest()
+        hash_name_current = util.get_md5_hash(url)
+        hash_name_past = util.get_md5_hash(f"{url}_{last_seen}")
 
         content_current = requests.get(url, headers=header).content
         content_past = requests.get(f"https://web.archive.org/web/{last_seen}id_/{url}", headers=header).content
@@ -127,7 +123,7 @@ def get_type():
         elif current_page_head.encoding:
             encoding_current = current_page_head.encoding
         else:
-            encoding_current = guess_encoding(content_current)
+            encoding_current = util.guess_encoding(content_current)
 
         if encoding_current != "utf-8":
             try:
@@ -143,7 +139,7 @@ def get_type():
         elif last_seen_page_head.encoding:
             encoding_past = last_seen_page_head.encoding
         else:
-            encoding_past = guess_encoding(content_past)
+            encoding_past = util.guess_encoding(content_past)
 
         if encoding_past != "utf-8":
             try:
@@ -159,67 +155,12 @@ def get_type():
             outfile.write(content_past)
         print(url, encoding_current, current_page_head.headers.get("Content-Type"), current_page_head.encoding,
               encoding_past, last_seen_page_head.headers.get("Content-Type"), last_seen_page_head.encoding)
-        output.append((url, size, last_seen, get_similarity(content_current, content_past)))
+        output.append((url, size, last_seen, calculate_similarity_score(content_current, content_past)))
         time.sleep(1)
 
     util.write_lines_to_file("..\\Data\\tmp\\hm.edu\\hm.edu_with_dates_after_fingerprint",
                              [f'{line[0]} {line[1]} {line[2]} {line[3]}' for line in output])
     util.write_lines_to_file("..\\Data\\tmp\\hm.edu\\hm.edu_fingerprint_error", no_html)
-
-
-def guess_encoding(text: bytes) -> str:
-    return json.detect_encoding(text)
-
-
-def get_similarity(content_current: bytes, content_past: bytes) -> float:
-    current_words = prepare_text(content_current)
-    past_words = prepare_text(content_past)
-
-    current_fingerprint = calculate_finger_print(current_words)
-    past_fingerprint = calculate_finger_print(past_words)
-    return calculate_similarity_value(current_fingerprint, past_fingerprint)
-
-
-def prepare_text(text: bytes) -> List[str]:
-    bs_soup = BeautifulSoup(text, 'html.parser')
-    text_extracted = bs_soup.get_text()
-    return re.findall(r"[\w']+", text_extracted.lower())
-
-
-def get_ngrams(wordlist: List[str], n: int) -> List[List[str]]:
-    ngrams = []
-    for i in range(len(wordlist) - n + 1):
-        ngrams.append(wordlist[i:i + n])
-    return ngrams
-
-
-def calculate_finger_print(word_list: List[str]) -> list[int]:
-    fingerprint = [0 for _ in range(64)]
-    ngram_list = get_ngrams(word_list, 8)
-    hashed_ngrams = [fnv_1a(''.join(ngram).encode("utf-8")) for ngram in ngram_list]
-
-    for hash_gram in hashed_ngrams:
-        binary = bin(hash_gram)  # Convert text to binary
-        bin_len = len(binary) - 2
-        bin_str = "0" * (64 - bin_len) + binary[2:]   # Add the missing leading 0's to make all hashes 64 bit
-
-        for i in range(64):
-            if bin_str[i] == '1':
-                fingerprint[i] += 1
-            else:
-                fingerprint[i] -= 1
-
-    for i in range(64):
-        if fingerprint[i] > 0:
-            fingerprint[i] = 1
-        else:
-            fingerprint[i] = 0
-    return fingerprint
-
-
-def calculate_similarity_value(fingerprint_a: List[int], fingerprint_b: List[int]) -> float:
-    differences = [1 for k in range(len(fingerprint_a)) if fingerprint_a[k] != fingerprint_b[k]]
-    return 1 - (sum(differences) / len(fingerprint_a))
 
 
 def orphan_likelihood_score_filter():
@@ -228,7 +169,7 @@ def orphan_likelihood_score_filter():
     cutoff = 0.7
 
     min_year = get_earliest_year("")
-    current_year = datetime.date.today().year
+    current_year = util.get_current_year()
 
     max_scale = current_year - min_year
 

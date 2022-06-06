@@ -23,3 +23,8 @@ LIST_OF_FILTER_FILE_ENDINGS = ["jpg", "gif", "css", "svg", "png", "pdf", "jpeg",
                                "m4b", "m4r", "f4b", "3gp", "3gp2", "3g2", "3gpp", "3gpp2", "oga", "ogv", "ogx", "wma",
                                "flv", "mp2", "mpeg", "mpe", "mpv", "m4p", "qt", "swf", "otf"]
 FILTER_REGEX = f".+\.({'|'.join(LIST_OF_FILTER_FILE_ENDINGS)}).*$"
+
+# Analysis constants
+HTML_PARSER_CONFIG = "html.parser"
+DEFAULT_NGRAM_SIZE = 8
+DEFAULT_FINGERPRINT_SIZE = 64

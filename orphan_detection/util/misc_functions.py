@@ -1,46 +1,29 @@
-import datetime
+import hashlib
 import re
 import random
 from typing import List
 
 from orphan_detection import constants
 
-__all__ = ["get_date", "parse_year_argument", "get_default_current_sitemap_filter",
-           "is_ressource_url", "shuffle_candidates_list"]
+__all__ = ["fnv_1a_64", "get_md5_hash", "is_resource_url", "shuffle_candidates_list"]
+
+FNV_1A_INIT_VALUE = 0xcbf29ce484222325
+FNV_1A_PRIME = 0x100000001b3
 
 
-# date related functions
-def get_date() -> str:
-    return datetime.datetime.today().strftime("%Y-%m-%d")
+def fnv_1a_64(data: bytes) -> int:
+    hash_value = FNV_1A_INIT_VALUE
+    for byte in data:
+        hash_value = hash_value ^ byte
+        hash_value = (hash_value * FNV_1A_PRIME) % 2**64
+    return hash_value
 
 
-def parse_year_argument(arg_value: str) -> datetime.date | None:
-    split_value = arg_value.split("-")
-    match len(split_value):
-        case 3:
-            try:
-                return datetime.date(int(split_value[0]), int(split_value[1]), int(split_value[2]))
-            except ValueError:
-                return None
-        case 2:
-            try:
-                return datetime.date(int(split_value[0]), int(split_value[1]), 1)
-            except ValueError:
-                return None
-        case 1:
-            try:
-                return datetime.date(int(split_value[0]), 1, 1)
-            except ValueError:
-                return None
-    return None
+def get_md5_hash(text: str) -> str:
+    return hashlib.md5(text.encode(constants.DEFAULT_ENCODING)).hexdigest()
 
 
-def get_default_current_sitemap_filter() -> datetime.date:
-    return datetime.date(datetime.date.today().year, 1, 1)
-
-
-# misc functions
-def is_ressource_url(url: str) -> bool:
+def is_resource_url(url: str) -> bool:
     filter_regex = re.compile(constants.FILTER_REGEX, re.IGNORECASE)
     return filter_regex.match(url) is not None
 

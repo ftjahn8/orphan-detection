@@ -76,7 +76,7 @@ def filter_file_extensions(domain: str) -> int:
 
     candidates_filtered = []
     for url in candidates_unfiltered:
-        if not util.is_ressource_url(url):
+        if not util.is_resource_url(url):
             candidates_filtered.append(url)
 
     candidates_filtered_file_path = constants.CANDIDATES_FILTERED_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
