@@ -1,6 +1,7 @@
 from orphan_detection.util.internet_operations import download_web_archive_data, probe_url
 
-from orphan_detection.util.file_operations import is_file, create_directory, read_lines_from_file, write_lines_to_file
+from orphan_detection.util.file_operations import is_file, create_directory, \
+    save_to_bin_file, read_from_bin_file, read_lines_from_file, write_lines_to_file
 
 from orphan_detection.util.data_objects import DUDEParameters, ProbeParameters
 

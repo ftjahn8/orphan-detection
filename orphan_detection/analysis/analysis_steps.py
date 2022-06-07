@@ -1,3 +1,4 @@
+from typing import Dict
 
 import requests
 
@@ -5,8 +6,87 @@ from orphan_detection import util
 from orphan_detection import constants
 
 import time
-
+from tqdm import tqdm
 from orphan_detection.analysis.similarity_score_functions import calculate_similarity_score
+
+ANALYSIS_DATA_TYPE = Dict[str, Dict[str, int | str]]
+
+
+def get_last_seen_date(data: ANALYSIS_DATA_TYPE, domain: str, download_date: str) -> int:
+    zipped_archive_file = constants.ZIPPED_ARCHIVE_NAME_TEMPLATE.format(DOMAIN=domain, DATE=download_date)
+    url_list_web_archive = util.read_lines_from_file(zipped_archive_file, zipped_file=True)
+
+    oldest_page_year = 9999
+
+    last_seen_lookup = {}
+    for line in url_list_web_archive:
+        timestamp, url = line.split(" ")[:2]
+        if url in last_seen_lookup:
+            if int(timestamp) > last_seen_lookup[url]:
+                last_seen_lookup[url] = int(timestamp)
+        else:
+            last_seen_lookup[url] = int(timestamp)
+
+        oldest_page_year = min(int(timestamp[:4]), oldest_page_year)
+
+    last_seen_output = []
+    for candidate in data.keys():
+        last_seen_date = last_seen_lookup[candidate]
+        last_seen_output.append(f"{candidate} {last_seen_date}")
+        data[candidate]["last_seen_date"] = last_seen_date
+
+    util.write_lines_to_file("..\\Data\\tmp\\hm.edu\\hm.edu_last_seen_dates", last_seen_output)
+    return oldest_page_year
+
+
+def get_current_page_content(data: ANALYSIS_DATA_TYPE) -> int:
+    no_html = []
+    to_be_removed = []
+
+    for candidate in tqdm(data.keys()):
+        current_page_response = requests.get(candidate, headers={'Accept-Encoding': constants.DEFAULT_ENCODING})
+
+        current_content_type_header = current_page_response.headers.get("Content-Type")
+        current_content = current_page_response.content
+        if current_content_type_header is None or "text/html" not in current_content_type_header.lower():
+            no_html.append(f"[NO HTML        ] {current_content_type_header:15s} {candidate} ")
+            to_be_removed.append(candidate)
+            continue
+
+        current_page_hashed_name = util.get_md5_hash(candidate)
+
+        if f"charset={constants.DEFAULT_ENCODING}" in current_content_type_header.lower():
+            encoding_current = constants.DEFAULT_ENCODING
+        elif "charset=" in current_content_type_header.lower():
+            encoding_current = current_content_type_header.lower().split("charset=")[1]
+        elif current_content_type_header is not None and current_page_response.encoding:
+            encoding_current = current_page_response.encoding
+        else:
+            encoding_current = util.guess_encoding(current_content)
+
+        if encoding_current != constants.DEFAULT_ENCODING:
+            try:
+                current_content = current_content.decode(encoding_current).encode(constants.DEFAULT_ENCODING)
+            except LookupError:
+                no_html.append(f"[ENCODING ERROR] {encoding_current:15s} {candidate}")
+                to_be_removed.append(candidate)
+                continue
+
+        util.save_to_bin_file(f"..\\Data\\tmp\\pages\\{current_page_hashed_name}", current_content)
+        data[candidate]["current_page_file"] = current_page_hashed_name
+        time.sleep(1)
+
+    util.write_lines_to_file("..\\Data\\tmp\\hm.edu\\hm.edu_download_current_error", no_html)
+    for url in to_be_removed:
+        del data[url]
+
+    return len(data)
+
+
+def retrieve_page_sizes(data: ANALYSIS_DATA_TYPE) -> None:
+    for candidate_url, candidate_data in data.items():
+        candidate_content = util.read_from_bin_file(candidate_data["current_page_file"])
+        data[candidate_url]["current_page_file"] = len(candidate_content)
 
 
 def retrieve_page_size():
@@ -59,30 +139,6 @@ def filter_same_size():
     reduction = 100 - ((end_len / start_len) * 100)
     print("Reduction of {:.2f}%".format(reduction))
 
-
-def get_last_seen_date():
-    zipped_archive_file = constants.ZIPPED_ARCHIVE_NAME_TEMPLATE.format(DOMAIN="hm.edu", DATE="2022-05-28")
-    url_list_web_archive = util.read_lines_from_file(zipped_archive_file, zipped_file=True)
-
-    url_list = util.read_lines_from_file("..\\Data\\tmp\\hm.edu\\hm.edu_with_size_filtered")
-    page_size_lookup = []
-    for line in url_list:
-        url, size = line.split(" ")[:2]
-        page_size_lookup.append((url, int(size)))
-
-    last_seen_lookup = {}
-    for line in url_list_web_archive:
-        timestamp, url = line.split(" ")[:2]
-        if url in last_seen_lookup:
-            if int(timestamp) > last_seen_lookup[url]:
-                last_seen_lookup[url] = int(timestamp)
-        else:
-            last_seen_lookup[url] = int(timestamp)
-
-    output = [(url, size, last_seen_lookup[url]) for url, size in page_size_lookup]
-    output.sort(key=lambda x: x[0])
-    output = [f"{url} {size} {date}" for url, size, date in output]
-    util.write_lines_to_file("..\\Data\\tmp\\hm.edu\\hm.edu_with_dates", output)
 
 
 def get_type():
@@ -203,4 +259,4 @@ def get_earliest_year(download_date: str) -> int:
 # filter_same_size()
 # get_last_seen_date()
 # get_type()
-orphan_likelihood_score_filter()
+# orphan_likelihood_score_filter()
