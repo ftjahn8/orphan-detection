@@ -34,10 +34,7 @@ def get_last_seen_date(data: ANALYSIS_DATA_TYPE, domain: str, download_date: str
     last_seen_lookup = {}
     for line in url_list_web_archive:
         timestamp, url = line.split(" ")[:2]
-        if url in last_seen_lookup:
-            if int(timestamp) > last_seen_lookup[url]:
-                last_seen_lookup[url] = int(timestamp)
-        else:
+        if (url in last_seen_lookup and int(timestamp) > last_seen_lookup[url]) or url not in last_seen_lookup:
             last_seen_lookup[url] = int(timestamp)
 
         oldest_page_year = min(int(timestamp[:4]), oldest_page_year)
@@ -110,7 +107,9 @@ def retrieve_page_sizes(data: ANALYSIS_DATA_TYPE, domain: str) -> None:
     for candidate_url, candidate_data in data.items():
         file_current = constants.PAGES_CONTENT_NAME_TEMPLATE.format(FILE_NAME=candidate_data['current_page_file'])
         candidate_content = util.read_from_bin_file(file_current)
+
         page_size = len(candidate_content)
+
         data[candidate_url]["size"] = page_size
         output.append(f"{candidate_url} {page_size}")
     util.write_lines_to_file(constants.PAGE_SIZE_NAME_TEMPLATE.format(DOMAIN=domain), output)
@@ -165,7 +164,7 @@ def get_last_seen_page_content(data: ANALYSIS_DATA_TYPE, domain: str,
 
     for candidate in tqdm(data.keys()):
         last_seen_date = data[candidate]["last_seen_date"]
-        page_hashed_name = util.get_md5_hash(f"{candidate}_{last_seen_date}")
+        page_hashed_name = util.get_md5_hash(f"{candidate}{last_seen_date}")
         url_web_archive = constants.WEB_ARCHIV_LAST_SEEN_VERSION.format(LAST_SEEN_DATE=last_seen_date, URL=candidate)
         error = download_page(page_hashed_name, url_web_archive, timeout=download_params.timeout)
         if error is not None:

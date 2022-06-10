@@ -11,7 +11,7 @@ ARG_FILTER_DATE_ERROR = "[ARG ERROR] Value ARG_VALUE for arg current_sitemap_fil
 
 def main():
     # prepare and parse arguments
-    parser = argparse.ArgumentParser(description="Find orphanage pages for a domain")
+    parser = argparse.ArgumentParser(description="Process to identify potential orphan pages for a single domain.")
     parser.add_argument("domain", type=str, help="Enter a domain to find orphanage pages for")
 
     parser.add_argument("-s", type=str, dest="download_date", default=None,
@@ -88,6 +88,10 @@ def main():
                                       enable_dude=enable_dude, dude_params=dude_params,
                                       probe_params=probe_params)
     else:
+
+        if pre_download_date is None:
+            print("[MISSING PARAMETER] The param -s [DATE] is required for the analysis process.")
+            return
         # Analysis
         cpd_params = util.ContentDownloadParameters(timeout=args.cpd_timeout, interval=args.cpd_interval)
         sf_params = util.SizeFilterParameters(epsilon=args.sf_epsilon, min_amount_same_size=args.sf_min_amount)
