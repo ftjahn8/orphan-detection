@@ -1,16 +1,9 @@
-from typing import Tuple, List
+from typing import Tuple
 
 import requests
-from orphan_detection import constants
+from orphan_detection.util.data_objects import PageResponse
 
-__all__ = ["download_web_archive_data", "probe_url"]
-
-
-def download_web_archive_data(domain: str) -> List[str]:
-    response = requests.get(constants.WEB_ARCHIV_BASE_URL.format(DOMAIN=domain))
-    response.raise_for_status()
-    response_lines = response.text.splitlines()
-    return response_lines
+__all__ = ["probe_url", "download_page_content"]
 
 
 def probe_url(url: str, timeout_after: float) -> Tuple[int, str | None]:
@@ -25,3 +18,20 @@ def probe_url(url: str, timeout_after: float) -> Tuple[int, str | None]:
         return 000, f"[ERROR] ConnectionError: {exc}"
     except Exception as exc:
         return 000, str(exc)
+
+
+def download_page_content(url: str, bytes_content: bool = True, **kwargs) -> PageResponse:
+    try:
+        response = requests.get(url, **kwargs)
+        page_content = response.text if not bytes_content else response.content
+        return PageResponse(error_msg=None, content=page_content,
+                            content_header=response.headers.get("Content-Type"), encoding=response.encoding)
+    except requests.exceptions.Timeout:
+        error_reason = "Timeout"
+    except requests.exceptions.SSLError:
+        error_reason = "SSLError"
+    except requests.exceptions.ConnectionError:
+        error_reason = "ConnectionError"
+    except Exception as exc:
+        error_reason = str(exc)
+    return PageResponse(error_msg=error_reason, content="", content_header=None, encoding=None)

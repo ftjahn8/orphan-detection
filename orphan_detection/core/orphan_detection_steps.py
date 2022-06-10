@@ -15,6 +15,7 @@ def initialize_data_directory(domain: str) -> None:
     util.create_directory(constants.ARCHIVE_DATA_DIRECTORY)
     util.create_directory(constants.RESULT_DIRECTORY)
     util.create_directory(constants.TMP_DIRECTORY)
+    util.create_directory(constants.PAGES_TMP_DIRECTORY)
 
     # create domain specific directories
     util.create_directory(constants.DOMAIN_DIRECTORY.format(DOMAIN=domain))
@@ -23,12 +24,17 @@ def initialize_data_directory(domain: str) -> None:
 
 def download_web_archive_data(searched_domain: str) -> str:
     # retrieve data from web archiv
-    response_data = util.download_web_archive_data(domain=searched_domain)
+    response = util.download_page_content(constants.WEB_ARCHIV_BASE_URL.format(DOMAIN=searched_domain),
+                                          bytes_content=False)
+    if response.error_msg is not None:
+        print(f"Failed to download Data from Webarchive for domain {searched_domain}.")
+        return ""
 
     # zip results and save in archive directory
     date = util.get_date()
     zipped_archive_file = constants.ZIPPED_ARCHIVE_NAME_TEMPLATE.format(DOMAIN=searched_domain, DATE=date)
 
+    response_data = response.content.splitlines()
     util.write_lines_to_file(zipped_archive_file, response_data, zipped_file=True)
     return zipped_archive_file
 
