@@ -105,7 +105,8 @@ def main():
         cpd_params = util.ContentDownloadParameters(timeout=args.cpd_timeout, interval=args.cpd_interval)
         sf_params = util.SizeFilterParameters(epsilon=args.sf_epsilon, min_amount_same_size=args.sf_min_amount)
         lspd_params = util.ContentDownloadParameters(timeout=args.lspd_timeout, interval=args.lspd_interval)
-        os_params = util.OrphanScoreParameters(age_weight=args.os_age_weight, similarity_weight=args.os_similarity_weight,
+        os_params = util.OrphanScoreParameters(age_weight=args.os_age_weight,
+                                               similarity_weight=args.os_similarity_weight,
                                                cutoff_value=args.os_cutoff)
         analysis.analysis(domain=domain,
                           download_date=pre_download_date,

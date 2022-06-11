@@ -15,23 +15,17 @@ def get_date() -> str:
 
 def parse_year_argument(arg_value: str) -> datetime.date | None:
     split_value = arg_value.split("-")
-    match len(split_value):
-        case 3:
-            try:
+    try:
+        match len(split_value):
+            case 3:
                 return datetime.date(int(split_value[0]), int(split_value[1]), int(split_value[2]))
-            except ValueError:
-                return None
-        case 2:
-            try:
+            case 2:
                 return datetime.date(int(split_value[0]), int(split_value[1]), 1)
-            except ValueError:
-                return None
-        case 1:
-            try:
+            case 1:
                 return datetime.date(int(split_value[0]), 1, 1)
-            except ValueError:
-                return None
-    return None
+        return None
+    except ValueError:
+        return None
 
 
 def get_default_current_sitemap_filter() -> datetime.date:

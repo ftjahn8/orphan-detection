@@ -9,7 +9,7 @@ from orphan_detection import constants
 from orphan_detection.analysis.check_page import check_page
 from orphan_detection.analysis.similarity_score_functions import calculate_similarity_score
 
-ANALYSIS_DATA_TYPE = Dict[str, Dict[str, int | str | float]]
+AnalysisDataType = Dict[str, Dict[str, int | str | float]]
 
 
 def check_needed_input_files(domain: str, download_date: str) -> int:
@@ -25,7 +25,7 @@ def check_needed_input_files(domain: str, download_date: str) -> int:
     return 0
 
 
-def get_last_seen_date(data: ANALYSIS_DATA_TYPE, domain: str, download_date: str) -> int:
+def get_last_seen_date(data: AnalysisDataType, domain: str, download_date: str) -> int:
     zipped_archive_file = constants.ZIPPED_ARCHIVE_NAME_TEMPLATE.format(DOMAIN=domain, DATE=download_date)
     url_list_web_archive = util.read_lines_from_file(zipped_archive_file, zipped_file=True)
 
@@ -77,9 +77,10 @@ def download_page(file_name: str, url: str, **kwargs) -> str | None:
             return f"[ENCODING ERROR] {encoding_current:15s} {url}"
 
     util.save_to_bin_file(constants.PAGES_CONTENT_NAME_TEMPLATE.format(FILE_NAME=file_name), page_content)
+    return None
 
 
-def get_current_page_content(data: ANALYSIS_DATA_TYPE, domain: str,
+def get_current_page_content(data: AnalysisDataType, domain: str,
                              download_params: util.ContentDownloadParameters) -> int:
     no_html = []
     to_be_removed = []
@@ -102,7 +103,7 @@ def get_current_page_content(data: ANALYSIS_DATA_TYPE, domain: str,
     return len(data)
 
 
-def retrieve_page_sizes(data: ANALYSIS_DATA_TYPE, domain: str) -> None:
+def retrieve_page_sizes(data: AnalysisDataType, domain: str) -> None:
     output = []
     for candidate_url, candidate_data in data.items():
         file_current = constants.PAGES_CONTENT_NAME_TEMPLATE.format(FILE_NAME=candidate_data['current_page_file'])
@@ -115,7 +116,7 @@ def retrieve_page_sizes(data: ANALYSIS_DATA_TYPE, domain: str) -> None:
     util.write_lines_to_file(constants.PAGE_SIZE_NAME_TEMPLATE.format(DOMAIN=domain), output)
 
 
-def filter_same_size(data: ANALYSIS_DATA_TYPE, domain: str, size_filter_params: util.SizeFilterParameters) -> int:
+def filter_same_size(data: AnalysisDataType, domain: str, size_filter_params: util.SizeFilterParameters) -> int:
     page_size_lookup = [(candidate_url, candidate_data["size"]) for candidate_url, candidate_data in data.items()]
 
     start_len = len(page_size_lookup)
@@ -131,12 +132,12 @@ def filter_same_size(data: ANALYSIS_DATA_TYPE, domain: str, size_filter_params: 
             tmp_remove.append((url, size))
             current_size = size
             continue
+
         # Write out current discard list and continue procedure
-        else:
-            if len(tmp_remove) >= size_filter_params.min_amount_same_size:
-                to_remove += tmp_remove
-            tmp_remove = [(url, size)]
-            current_size = size
+        if len(tmp_remove) >= size_filter_params.min_amount_same_size:
+            to_remove += tmp_remove
+        tmp_remove = [(url, size)]
+        current_size = size
 
     # Remove all entries that need to be discarded
     filtered = list(set(page_size_lookup) - set(to_remove))
@@ -153,11 +154,11 @@ def filter_same_size(data: ANALYSIS_DATA_TYPE, domain: str, size_filter_params: 
     # Calculate the reduction percentage
     end_len = len(filtered)
     reduction = 100 - ((end_len / start_len) * 100)
-    print("Reduction of {:.2f}%".format(reduction))
+    print(f"Reduction of {reduction:.2f}%.")
     return end_len
 
 
-def get_last_seen_page_content(data: ANALYSIS_DATA_TYPE, domain: str,
+def get_last_seen_page_content(data: AnalysisDataType, domain: str,
                                download_params: util.ContentDownloadParameters) -> int:
     no_html = []
     to_be_removed = []
@@ -182,7 +183,7 @@ def get_last_seen_page_content(data: ANALYSIS_DATA_TYPE, domain: str,
     return len(data)
 
 
-def get_similarity_scores(data: ANALYSIS_DATA_TYPE, domain: str) -> None:
+def get_similarity_scores(data: AnalysisDataType, domain: str) -> None:
     output = []
     for candidate_url, candidate_data in data.items():
         file_current = constants.PAGES_CONTENT_NAME_TEMPLATE.format(FILE_NAME=candidate_data['current_page_file'])
@@ -197,7 +198,7 @@ def get_similarity_scores(data: ANALYSIS_DATA_TYPE, domain: str) -> None:
     util.write_lines_to_file(constants.SIMILARITY_SCORES_NAME_TEMPLATE.format(DOMAIN=domain), output)
 
 
-def filter_orphan_likelihood_score(data: ANALYSIS_DATA_TYPE, domain: str, oldest_page_year: int,
+def filter_orphan_likelihood_score(data: AnalysisDataType, domain: str, oldest_page_year: int,
                                    orphan_score_params: util.OrphanScoreParameters) -> int:
     current_year = util.get_current_year()
     max_scale = current_year - oldest_page_year
@@ -229,7 +230,7 @@ def filter_orphan_likelihood_score(data: ANALYSIS_DATA_TYPE, domain: str, oldest
     return len(data)
 
 
-def check_orphan_status(data: ANALYSIS_DATA_TYPE, domain) -> None:
+def check_orphan_status(data: AnalysisDataType, domain) -> None:
     result_translation = {0: "[UNDECIDED      ]", 1: "[LIKELY ORPHAN  ]", -1: "[UNLIKELY ORPHAN]"}
     results = []
     for candidate_url, candidate_data in data.items():

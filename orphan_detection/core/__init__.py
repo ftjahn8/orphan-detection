@@ -66,7 +66,7 @@ def orphaned_pages_detection(domain: str, pre_download_date: str | None, current
         end_time_step = time.time()
         print(f"Performing Dynamic URL Detection for {domain} took {end_time_step - start_time_step:.2f} seconds, "
               f"and resulted in {amount_orphan_candidates} pages. This is a reduction of {reduction:.2f}%.")
-    return 1
+
     amount_probe_urls = amount_orphan_candidates
     print(f"Checking status codes for {amount_probe_urls} pages on {domain} and extracting links with status code 200.")
     start_time_step = time.time()

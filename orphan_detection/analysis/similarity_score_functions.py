@@ -21,6 +21,7 @@ def calculate_similarity_score(current_page_content: bytes, past_page_content: b
 
 
 def get_ngrams(word_list: List[str], n: int = constants.DEFAULT_NGRAM_SIZE) -> List[List[str]]:
+    # pylint: disable=invalid-name
     ngrams = []
     for i in range(len(word_list) - n + 1):
         ngrams.append(word_list[i:i + n])
