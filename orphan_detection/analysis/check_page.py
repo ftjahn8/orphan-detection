@@ -87,6 +87,7 @@ def check_boiler_plate(content: str) -> Tuple[bool, int | None]:
 
 
 def check_page(content: str | bytes, url: str) -> Tuple[int, List[str]]:
+    response_code = 0
     response = []
     cleaned_content = util.remove_html_tags(content).lower()
 
@@ -110,27 +111,33 @@ def check_page(content: str | bytes, url: str) -> Tuple[int, List[str]]:
     # check for copyright marker
     found_marker, year = check_copyright(cleaned_content)
     if found_marker:
-        return 1, response + [f"[OLD COPYRIGHT DATE] Latest Copyright from year {year}."]
+        response_code = 1
+        response.append(f"[OLD COPYRIGHT DATE] Latest Copyright from year {year}.")
     if year:
         return -1,  response + [f"[NEW COPYRIGHT DATE] Latest Copyright from year {year}."]
 
     found_marker, keyword = check_potential_redirect(str(content))
     if found_marker:
-        return 0,  response + [f"[POTENTIAL REDIRECT] found keyword {keyword} on page."]
+        response.append(f"[POTENTIAL REDIRECT] found keyword {keyword} on page.")
 
     # check for error page markers
     found_marker, keyword = check_error_page(cleaned_content)
     if found_marker:
-        return 1,  response + [f"[CUSTOM ERROR PAGE] found keyword {keyword} on page."]
+        response_code = 1
+        response.append(f"[CUSTOM ERROR PAGE] found keyword {keyword} on page.")
 
     # check for expired page marker
     found_marker, keyword = check_expired_page(cleaned_content)
     if found_marker:
-        return 1,  response + [f"[EXPIRED PAGE] found keyword {keyword} on page."]
+        response_code = 1
+        response.append(f"[EXPIRED PAGE] found keyword {keyword} on page.")
 
     content_without_scripts = util.remove_html_sections(content, "scripts")
     found_marker, amount_words = check_boiler_plate(util.remove_html_tags(content_without_scripts))
     if found_marker:
-        return 1,  response + [f"[BOILERPLATE PAGE] Identified page as boilerplate with only {amount_words} words."]
+        response_code = 1
+        response.append(f"[BOILERPLATE PAGE] Identified page as boilerplate with only {amount_words} words.")
 
-    return 0,  response + ["[UNDECIDED] Unknown status, no indicators found"]
+    if response_code == 0:
+        return 0,  response + ["[UNDECIDED] Unknown status, no indicators found"]
+    return response_code, response

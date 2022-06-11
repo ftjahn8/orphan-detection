@@ -7,7 +7,7 @@ from orphan_detection import util
 HTTP_SCHEMA = "http://"
 HTTPS_SCHEMA = "https://"
 
-DUDE_RETURN_TYPE = Tuple[List[str], List[str], List[str]]
+DudeReturnType = Tuple[List[str], List[str], List[str]]
 
 
 def dynamic_url_detection(domain: str, dude_params: util.DUDEParameters) -> int:
@@ -72,7 +72,7 @@ def identify_subdomains(url_list: List[str], domain: str) -> Dict[str, List[str]
     return domain_lookup
 
 
-def dude_main(url_list: List[str], domain: str, dude_params: util.DUDEParameters) -> DUDE_RETURN_TYPE:
+def dude_main(url_list: List[str], domain: str, dude_params: util.DUDEParameters) -> DudeReturnType:
     url_list, back_transformation_lookup = remove_schema(url_list)
     subdomain_lookup = identify_subdomains(list(url_list), domain)
     orphans, excluded, prefixes = [], [], []
@@ -96,7 +96,7 @@ def dude_main(url_list: List[str], domain: str, dude_params: util.DUDEParameters
 
 
 def dude_subdomain(url_list: Set[str], domain: str, dude_params: util.DUDEParameters,
-                   cutoff_value: float, prev_prefix: str = "") -> DUDE_RETURN_TYPE:
+                   cutoff_value: float, prev_prefix: str = "") -> DudeReturnType:
     orphans = []
     excluded = []
     identified_prefixes = []

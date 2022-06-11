@@ -23,7 +23,7 @@ LIST_OF_FILTER_FILE_ENDINGS = ["jpg", "gif", "css", "svg", "png", "pdf", "jpeg",
                                "indt", "jp2", "j2k", "jpf", "jpx", "jpm", "mj2", "svgz", "m4a", "m4v", "f4v", "f4a",
                                "m4b", "m4r", "f4b", "3gp", "3gp2", "3g2", "3gpp", "3gpp2", "oga", "ogv", "ogx", "wma",
                                "flv", "mp2", "mpeg", "mpe", "mpv", "m4p", "qt", "swf", "otf"]
-FILTER_REGEX = f".+\.({'|'.join(LIST_OF_FILTER_FILE_ENDINGS)}).*$"  # noqa: W605
+FILTER_REGEX = f".+\.({'|'.join(LIST_OF_FILTER_FILE_ENDINGS)}).*$"  # noqa: W605 pylint: disable-anomalous-backslash-in-string
 
 # Analysis constants
 

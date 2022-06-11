@@ -16,7 +16,7 @@ def probe_url(url: str, timeout_after: float) -> Tuple[int, str | None]:
         return 000, f"[ERROR] SSLError: {exc}"
     except requests.exceptions.ConnectionError as exc:
         return 000, f"[ERROR] ConnectionError: {exc}"
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable-msg=broad-except
         return 000, str(exc)
 
 
@@ -32,6 +32,6 @@ def download_page_content(url: str, bytes_content: bool = True, **kwargs) -> Pag
         error_reason = "SSLError"
     except requests.exceptions.ConnectionError:
         error_reason = "ConnectionError"
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable-msg=broad-except
         error_reason = str(exc)
     return PageResponse(error_msg=error_reason, content="", content_header=None, encoding=None)
