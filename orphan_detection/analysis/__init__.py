@@ -81,4 +81,6 @@ def analysis(domain: str, download_date: str, current_download_params: util.Cont
     check_orphan_status(analysis_data, domain)
     end_time_step = time.time()
     print(f"Checking orphan status for {domain} took {end_time_step - start_time_step:.2f} seconds.")
+
+    util.delete_directory(constants.PAGES_TMP_DIRECTORY)
     return 0

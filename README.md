@@ -1,3 +1,5 @@
+docker run -v []:/home/user/orphan-detection/Data -it --name my_detection --rm orphan-detection [args]
+
 ## Orphan Detection
 We provide a docker image containing all the requirements for our implementation. The idea is to get a shell into the docker image and run the code there.
 You can build the image as follows:

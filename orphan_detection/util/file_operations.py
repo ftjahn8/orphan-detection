@@ -1,11 +1,12 @@
 import gzip
 import os
+import shutil
 
 from typing import List
 
 from orphan_detection import constants
 
-__all__ = ["create_directory", "is_file",
+__all__ = ["create_directory", "is_file", "delete_directory",
            "save_to_bin_file", "read_from_bin_file", "read_lines_from_file", "write_lines_to_file"]
 
 
@@ -73,3 +74,7 @@ def write_lines_to_file(path: str, content: List[str], zipped_file: bool = False
         save_to_gzip_file(path, content_combined, user_restricted)
     else:
         save_to_file(path, content_combined, user_restricted)
+
+
+def delete_directory(path: str):
+    shutil.rmtree(path, ignore_errors=True)
