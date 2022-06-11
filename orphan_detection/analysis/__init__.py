@@ -17,7 +17,7 @@ def analysis(domain: str, download_date: str, current_download_params: util.Cont
     # create needed directories
     print(f"Creating data directory structure for {domain}.")
     initialize_data_directory(domain)
-    print(f"Finished creating data directory structure.")
+    print("Finished creating data directory structure.")
 
     check = check_needed_input_files(domain, download_date)
     if check != 0:

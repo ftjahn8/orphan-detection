@@ -40,19 +40,28 @@ def main():
 
     # analysis params
     # Download current page content
-    parser.add_argument("--a_cpd_timeout", type=float, dest="cpd_timeout", default=constants.CURRENT_PAGE_DOWNLOAD_DEFAULT_TIMEOUT,
+    parser.add_argument("--a_cpd_timeout", type=float, dest="cpd_timeout",
+                        default=constants.CURRENT_PAGE_DOWNLOAD_DEFAULT_TIMEOUT,
                         help="Download content of page for current state.")
-    parser.add_argument("--a_cpd_interval", type=float, dest="cpd_interval", default=constants.CURRENT_PAGE_DOWNLOAD_DEFAULT_INTERVAL, help="Dude Param")
+    parser.add_argument("--a_cpd_interval", type=float, dest="cpd_interval",
+                        default=constants.CURRENT_PAGE_DOWNLOAD_DEFAULT_INTERVAL, help="Dude Param")
 
-    parser.add_argument("--a_sf_epsilon", type=float, dest="sf_epsilon", default=constants.SIZE_FILTER_DEFAULT_EPSILON, help="Dude Param")
-    parser.add_argument("--a_sf_min_amount", type=int, dest="sf_min_amount", default=constants.SIZE_FILTER_DEFAULT_AMOUNT, help="Dude Param")
+    parser.add_argument("--a_sf_epsilon", type=float, dest="sf_epsilon",
+                        default=constants.SIZE_FILTER_DEFAULT_EPSILON, help="Dude Param")
+    parser.add_argument("--a_sf_min_amount", type=int, dest="sf_min_amount",
+                        default=constants.SIZE_FILTER_DEFAULT_AMOUNT, help="Dude Param")
     # Download last seen page content
-    parser.add_argument("--a_lspd_timeout", type=float, dest="lspd_timeout", default=constants.LAST_SEEN_PAGE_DOWNLOAD_DEFAULT_TIMEOUT, help="Dude Param")
-    parser.add_argument("--a_lspd_interval", type=float, dest="lspd_interval", default=constants.LAST_SEEN_PAGE_DOWNLOAD_DEFAULT_INTERVAL, help="Dude Param")
+    parser.add_argument("--a_lspd_timeout", type=float, dest="lspd_timeout",
+                        default=constants.LAST_SEEN_PAGE_DOWNLOAD_DEFAULT_TIMEOUT, help="Dude Param")
+    parser.add_argument("--a_lspd_interval", type=float, dest="lspd_interval",
+                        default=constants.LAST_SEEN_PAGE_DOWNLOAD_DEFAULT_INTERVAL, help="Dude Param")
     # orphan score calculation params
-    parser.add_argument("--a_os_age_weight", type=float, dest="os_age_weight", default=constants.ORPHAN_SCORE_DEFAULT_AGE_WEIGHT, help="Dude Param")
-    parser.add_argument("--a_os_similarity_weight", type=float, dest="os_similarity_weight", default=constants.ORPHAN_SCORE_DEFAULT_SIMILARITY_WEIGHT, help="Dude Param")
-    parser.add_argument("--a_os_cutoff", type=float, dest="os_cutoff", default=constants.ORPHAN_SCORE_DEFAULT_CUTOFF, help="Dude Param")
+    parser.add_argument("--a_os_age_weight", type=float, dest="os_age_weight",
+                        default=constants.ORPHAN_SCORE_DEFAULT_AGE_WEIGHT, help="Dude Param")
+    parser.add_argument("--a_os_similarity_weight", type=float, dest="os_similarity_weight",
+                        default=constants.ORPHAN_SCORE_DEFAULT_SIMILARITY_WEIGHT, help="Dude Param")
+    parser.add_argument("--a_os_cutoff", type=float, dest="os_cutoff",
+                        default=constants.ORPHAN_SCORE_DEFAULT_CUTOFF, help="Dude Param")
     args = parser.parse_args()
 
     # organise main args

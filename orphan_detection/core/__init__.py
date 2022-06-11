@@ -20,7 +20,7 @@ def orphaned_pages_detection(domain: str, pre_download_date: str | None, current
     # create needed directories
     print(f"Creating data directory structure for {domain}.")
     initialize_data_directory(domain)
-    print(f"Finished creating data directory structure.")
+    print("Finished creating data directory structure.")
 
     # retrieve data from web archiv for domain
     if pre_download_date is None:
