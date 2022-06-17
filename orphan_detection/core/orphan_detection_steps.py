@@ -114,6 +114,7 @@ def check_status_codes(domain: str, probe_args: util.ProbeParameters) -> int:
             error_responses[url] = f"{error_msg:25s} {url}"
 
         all_status_codes[url] = f"{status_code:03} {url}"
+        time.sleep(probe_args.interval)
 
     potential_orphans.sort()
     all_status_codes_sorted = [all_status_codes[url] for url in probe_candidates]
