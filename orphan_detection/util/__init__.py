@@ -12,4 +12,4 @@ from orphan_detection.util.date_operations import get_current_year, get_date, pa
     get_default_current_sitemap_filter
 
 from orphan_detection.util.text_operations import identify_words, identify_numbers, \
-    remove_html_tags, remove_html_sections, guess_encoding
+    remove_html_tags, get_content_without_tags, guess_encoding

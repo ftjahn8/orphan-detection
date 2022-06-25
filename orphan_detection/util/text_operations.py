@@ -6,7 +6,7 @@ import bs4
 
 from orphan_detection import constants
 
-__all__ = ["identify_words", "identify_numbers", "remove_html_tags", "remove_html_sections", "guess_encoding"]
+__all__ = ["identify_words", "identify_numbers", "remove_html_tags", "get_content_without_tags", "guess_encoding"]
 
 
 def identify_words(text: str) -> List[str]:
@@ -21,11 +21,12 @@ def remove_html_tags(page_content: bytes | str) -> str:
     return bs4.BeautifulSoup(page_content, constants.HTML_PARSER_CONFIG).get_text()
 
 
-def remove_html_sections(page_content: bytes | str, tag: str) -> str:
+def get_content_without_tags(page_content: bytes | str, tags: List[str]) -> str:
     soup = bs4.BeautifulSoup(page_content, constants.HTML_PARSER_CONFIG)
-    for tag_part in soup.select(tag):
-        tag_part.extract()
-    return str(soup)
+    for tag in tags:
+        for tag_part in soup.select(tag):
+            tag_part.extract()
+    return soup.get_text()
 
 
 def guess_encoding(text: bytes) -> str:

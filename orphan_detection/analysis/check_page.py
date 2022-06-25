@@ -133,8 +133,8 @@ def check_page(content: str | bytes, url: str) -> Tuple[int, List[str]]:
         response_code = 1
         response.append(f"[EXPIRED PAGE] found keyword {keyword} on page.")
 
-    content_without_scripts = util.remove_html_sections(content, "scripts")
-    found_marker, amount_words = check_boiler_plate(util.remove_html_tags(content_without_scripts))
+    content_without_scripts = util.get_content_without_tags(content, ["scripts"])
+    found_marker, amount_words = check_boiler_plate(content_without_scripts)
     if found_marker:
         response_code = 1
         response.append(f"[BOILERPLATE PAGE] Identified page as boilerplate with only {amount_words} words.")
