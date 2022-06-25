@@ -1,22 +1,33 @@
+"""This file contains all default values for the package."""
 
-PROBE_INTERVAL = 0.5
-PROBE_TIMEOUT = 5
 
+# Orphan Detection Process constant
+
+# If you want to change the default sitemap filter for the get_orphan_candidates-step,
+# you have to adjust it in the util.date_operations.py file.
+
+# dude default values
 DUDE_DEFAULT_PC = 0.05
 DUDE_DEFAULT_ST = 15
 DUDE_DEFAULT_LT = 20
 DUDE_DEFAULT_LC = 0
 
+# probe params
+PROBE_INTERVAL = 0.5
+PROBE_TIMEOUT = 5
+
+# File related default values
 CHMOD_USER_ONLY_FILE = 0o600
 DEFAULT_ENCODING = "utf-8"
 
-# base url wor web archiv request
+# base url for web archiv request
 WEB_ARCHIV_BASE_URL = 'https://web.archive.org/cdx/search/cdx?url={DOMAIN}&matchType=domain' \
                       '&fl=timestamp,original,length&filter=statuscode:200'
 
+# base url for downloading a page in its last seen form from the web archiv
 WEB_ARCHIV_LAST_SEEN_VERSION = "https://web.archive.org/web/{LAST_SEEN_DATE}id_/{URL}"
 
-# file filter
+# ressource file filter
 LIST_OF_FILTER_FILE_ENDINGS = ["jpg", "gif", "css", "svg", "png", "pdf", "jpeg", "mov", "avi", "mpg", "wmv", "mp4",
                                "ttf", "woff", "eot", "js", "ico", "mp3", "ogg", "webm", "webp", "tiff", "psd", "bmp",
                                "heif", "indd", "ai", "eps", "jpe", "jif", "jfif", "jfi", "tif", "dib", "heic", "ind",
@@ -28,7 +39,7 @@ LIST_OF_FILTER_FILE_ENDINGS = ["jpg", "gif", "css", "svg", "png", "pdf", "jpeg",
 FILTER_REGEX = f".+\.({'|'.join(LIST_OF_FILTER_FILE_ENDINGS)}).*$"  # noqa: W605
 
 # Analysis constants
-
+# default param values
 CURRENT_PAGE_DOWNLOAD_DEFAULT_TIMEOUT = 5
 CURRENT_PAGE_DOWNLOAD_DEFAULT_INTERVAL = 1
 
@@ -42,10 +53,11 @@ ORPHAN_SCORE_DEFAULT_AGE_WEIGHT = 0.1
 ORPHAN_SCORE_DEFAULT_SIMILARITY_WEIGHT = 0.9
 ORPHAN_SCORE_DEFAULT_CUTOFF = 0.7
 
-
+# download defaults
 DOWNLOAD_HEADER = {'Accept-Encoding': DEFAULT_ENCODING}
 HTML_PARSER_CONFIG = "html.parser"
 
+# fingerprint defaults
 DEFAULT_NGRAM_SIZE = 8
 DEFAULT_FINGERPRINT_SIZE = 64
 

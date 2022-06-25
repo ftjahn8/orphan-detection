@@ -1,4 +1,4 @@
-
+"""This file contains all date related helper functions."""
 import datetime
 
 
@@ -6,14 +6,18 @@ __all__ = ["get_current_year", "get_date", "parse_year_argument", "get_default_c
 
 
 def get_current_year() -> int:
+    """Returns the current year of execution."""
     return datetime.date.today().year
 
 
 def get_date() -> str:
+    """Returns the current date of execution."""
     return datetime.datetime.today().strftime("%Y-%m-%d")
 
 
 def parse_year_argument(arg_value: str) -> datetime.date | None:
+    """Parses the sitemap filter year and returns it in date form if it corresponds to a valid date,
+     otherwise returns None."""
     split_value = arg_value.split("-")
     try:
         match len(split_value):
@@ -29,4 +33,5 @@ def parse_year_argument(arg_value: str) -> datetime.date | None:
 
 
 def get_default_current_sitemap_filter() -> datetime.date:
+    """Returns the sitemap filter in date form."""
     return datetime.date(get_current_year(), 1, 1)

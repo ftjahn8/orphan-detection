@@ -1,3 +1,4 @@
+"""This module contains all functions for the analysis chain of the orphan-detection module."""
 import time
 
 from orphan_detection import util
@@ -14,6 +15,17 @@ __all__ = ["analysis"]
 def analysis(domain: str, download_date: str, current_download_params: util.ContentDownloadParameters,
              size_filter_params: util.SizeFilterParameters, last_seen_download_params: util.ContentDownloadParameters,
              orphan_score_params: util.OrphanScoreParameters) -> int:
+    """
+    Analysis process to analyse the identified list of potential orphans for a single domain further.
+    :param domain: domain to analyse potential orphans for
+    :param download_date: download date of the previously downloaded web archive data
+    :param current_download_params: params for the current download step in an util.ContentDownloadParameters-object
+    :param size_filter_params: params for the size filter step in an util.SizeFilterParameters-object
+    :param last_seen_download_params: params for the last seen download step in an util.ContentDownloadParameters-object
+    :param orphan_score_params: params for the orphan score step in an util.OrphanScoreParameters-object
+    :return: exit code, 0 (OK) or 1 (NOT OK)
+    """
+
     # create needed directories
     print(f"Creating data directory structure for {domain}.")
     initialize_data_directory(domain)

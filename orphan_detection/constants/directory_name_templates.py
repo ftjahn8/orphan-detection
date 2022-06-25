@@ -1,3 +1,4 @@
+"""This file contains all template names for all output directories, result and interim result files."""
 # directory names
 DATA_DIRECTORY = "./Data/"
 ARCHIVE_DATA_DIRECTORY = DATA_DIRECTORY + "Archive_Data/"   # Location of downloaded web archive data

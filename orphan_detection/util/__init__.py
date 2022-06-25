@@ -1,3 +1,4 @@
+"""This module contains all helper files for the orphan detection package."""
 from orphan_detection.util.internet_operations import probe_url, download_page_content
 
 from orphan_detection.util.file_operations import is_file, create_directory, delete_directory, \

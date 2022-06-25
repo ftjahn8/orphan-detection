@@ -91,7 +91,7 @@ def main():
         probe_params = util.ProbeParameters(timeout=args.probe_timeout, interval=args.probe_interval)
 
         # call main procedure
-        core.orphaned_pages_detection(domain=domain,
+        exit_code = core.orphaned_pages_detection(domain=domain,
                                       pre_download_date=pre_download_date,
                                       current_sitemap_filter=current_sitemap_filter,
                                       enable_dude=enable_dude, dude_params=dude_params,
@@ -108,12 +108,13 @@ def main():
         os_params = util.OrphanScoreParameters(age_weight=args.os_age_weight,
                                                similarity_weight=args.os_similarity_weight,
                                                cutoff_value=args.os_cutoff)
-        analysis.analysis(domain=domain,
+        exit_code = analysis.analysis(domain=domain,
                           download_date=pre_download_date,
                           current_download_params=cpd_params,
                           size_filter_params=sf_params,
                           last_seen_download_params=lspd_params,
                           orphan_score_params=os_params)
+    exit(exit_code)
 
 
 if __name__ == "__main__":

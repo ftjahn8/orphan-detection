@@ -1,3 +1,4 @@
+"""This module contains all functions of the main process to identify orphan pages with the orphan-detection package."""
 import datetime
 import time
 
@@ -15,6 +16,16 @@ __all__ = ["orphaned_pages_detection"]
 def orphaned_pages_detection(domain: str, pre_download_date: str | None, current_sitemap_filter: datetime.date,
                              enable_dude: True, dude_params: util.DUDEParameters,
                              probe_params: util.ProbeParameters) -> int:
+    """
+    Main process to identify potential orphans for a single domain.
+    :param domain: domain to identify potential orphans for
+    :param pre_download_date: date to reuse earlier downloaded web archive data and skip download phase otherwise None
+    :param current_sitemap_filter: date of the earliest index date to identify an url as part of the current sitemap
+    :param enable_dude: True if the DUDe filter should be applied
+    :param dude_params: params for the DUDe step in an util.DUDEParameters-object
+    :param probe_params: params for the probe step in an util.ProbeParameters-object
+    :return: exit code, 0 (OK) or 1 (NOT OK)
+    """
     start_time = time.time()
 
     # create needed directories

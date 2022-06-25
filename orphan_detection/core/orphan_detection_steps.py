@@ -10,6 +10,7 @@ from orphan_detection import util
 
 
 def initialize_data_directory(domain: str) -> None:
+    """Create all output directories"""
     # create static directories
     util.create_directory(constants.DATA_DIRECTORY)
     util.create_directory(constants.ARCHIVE_DATA_DIRECTORY)
@@ -23,6 +24,7 @@ def initialize_data_directory(domain: str) -> None:
 
 
 def download_web_archive_data(searched_domain: str) -> str:
+    """Download the web archive data for given domain"""
     # retrieve data from web archiv
     response = util.download_page_content(constants.WEB_ARCHIV_BASE_URL.format(DOMAIN=searched_domain),
                                           bytes_content=False)
@@ -40,20 +42,30 @@ def download_web_archive_data(searched_domain: str) -> str:
 
 
 def get_orphan_candidates(zipped_archive_file: str, current_sitemap_filter: datetime.date, domain: str) -> int:
+    """
+    Identify potential orphans not being part of the sitemap after the current_sitemap_filter date.
+    :param zipped_archive_file: path to the file with the web archive data
+    :param current_sitemap_filter: date to separate orphan candidates from pages being part of the current sitemap
+    :param domain: domain to identify orphan pages for
+    :return: amount of orphan candidates
+    """
     url_list_web_archive = util.read_lines_from_file(zipped_archive_file, zipped_file=True)
 
     current_unique_url_set = set()
     total_unique_url_set = set()
 
     for web_archive_line in url_list_web_archive:
+        # separate line into timestamp and url
         timestamp, url = web_archive_line.split(" ")[:2]
+        timestamp_date = datetime.datetime.strptime(timestamp, '%Y%m%d%H%M%S').date()
 
-        timestamp_date = datetime.datetime.strptime(timestamp, '%Y%m%d%H%M%S').date()  # TODO STRING CMP?
+        # add urls with an index date after the current sitemap filter date to the current urls set
         if timestamp_date >= current_sitemap_filter:
             current_unique_url_set.add(url)
 
         total_unique_url_set.add(url)
 
+    # identify missing urls
     orphan_candidates_url_set = total_unique_url_set - current_unique_url_set
 
     # sort entries
@@ -77,6 +89,11 @@ def get_orphan_candidates(zipped_archive_file: str, current_sitemap_filter: date
 
 
 def filter_file_extensions(domain: str) -> int:
+    """
+    Filter out all candidate urls identified as leading to a ressource file.
+    :param domain: domain to identify orphan pages for
+    :return: amount of remaining candidates
+    """
     orphan_candidates_file_path = constants.CANDIDATES_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
     candidates_unfiltered = util.read_lines_from_file(orphan_candidates_file_path)
 
@@ -94,6 +111,12 @@ def filter_file_extensions(domain: str) -> int:
 
 
 def check_status_codes(domain: str, probe_args: util.ProbeParameters) -> int:
+    """
+    Probe all candidates and filter out all urls with a response != 200.
+    :param domain: domain to identify orphan pages for
+    :param probe_args: parameters for probe
+    :return: amount of candidates left
+    """
     probe_candidates_path = constants.CANDIDATES_TO_PROBE_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
     probe_candidates = util.read_lines_from_file(probe_candidates_path)
 
@@ -101,12 +124,15 @@ def check_status_codes(domain: str, probe_args: util.ProbeParameters) -> int:
     all_status_codes = {}
     error_responses = {}
 
+    # shuffle candidates before probe
     probe_candidates_shuffled = probe_candidates.copy()
     probe_candidates_shuffled = util.shuffle_candidates_list(probe_candidates_shuffled)
 
     for url in tqdm(probe_candidates_shuffled):
+        # probe url
         status_code, error_msg = util.probe_url(url, timeout_after=probe_args.timeout)
 
+        # analyse response code
         if status_code == 200:
             potential_orphans.append(url)
 
@@ -116,10 +142,12 @@ def check_status_codes(domain: str, probe_args: util.ProbeParameters) -> int:
         all_status_codes[url] = f"{status_code:03} {url}"
         time.sleep(probe_args.interval)
 
+    # sort results
     potential_orphans.sort()
     all_status_codes_sorted = [all_status_codes[url] for url in probe_candidates]
     error_responses_sorted = [error_responses[url] for url in probe_candidates if url in error_responses]
 
+    # save results
     potential_orphans_path = constants.POTENTIAL_ORPHAN_LIST_NAME_TEMPLATE.format(DOMAIN=domain)
     util.write_lines_to_file(potential_orphans_path, potential_orphans)
 
