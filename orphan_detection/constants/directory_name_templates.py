@@ -1,5 +1,5 @@
 # directory names
-DATA_DIRECTORY = "../Data/"
+DATA_DIRECTORY = "./Data/"
 ARCHIVE_DATA_DIRECTORY = DATA_DIRECTORY + "Archive_Data/"   # Location of downloaded web archive data
 RESULT_DIRECTORY = DATA_DIRECTORY + "Results/"               # Location for results of the process
 TMP_DIRECTORY = DATA_DIRECTORY + "tmp/"                     # Location for temporary files of the process
