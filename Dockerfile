@@ -1,14 +1,13 @@
 FROM python:3.10
-RUN useradd --create-home --shell /bin/bash user
-ENV PYTHONPATH "${PYTHONPATH}:/home/user/orphan-detection"
+ENV PYTHONPATH "${PYTHONPATH}:/app"
 
-COPY ./requirements.txt /home/user/orphan-detection/requirements.txt
-COPY Data/ /home/user/orphan-detection/Data
-COPY orphan_detection/ /home/user/orphan-detection/orphan_detection
+COPY ./requirements.txt /app/requirements.txt
+COPY ./orphan_detection /app/orphan_detection
+RUN mkdir /app/Data/
 
 RUN pip3 install --upgrade pip setuptools
-RUN pip3 install -r /home/user/orphan-detection/requirements.txt
+RUN pip3 install -r /app/requirements.txt
 
-WORKDIR /home/user/orphan-detection/orphan_detection
+WORKDIR /app/orphan_detection
 ENTRYPOINT ["python", "main.py"]
 
