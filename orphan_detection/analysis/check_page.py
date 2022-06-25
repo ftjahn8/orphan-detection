@@ -52,11 +52,12 @@ def check_copyright(page_content: str) -> Tuple[bool, int | None]:
         potential_copyright += page_content[-50 + keyword_index[0]: keyword_index[1] + 50]
 
     potential_years = list(map(int, util.identify_numbers(potential_copyright)))
-    if not potential_years:
-        return False, None
     current_year = util.get_current_year()
-    latest_year_found = max({year for year in potential_years if year <= current_year})
+    potential_years_cleaned = {year for year in potential_years if 1970 <= year <= current_year}
+    if not potential_years_cleaned:
+        return False, None
 
+    latest_year_found = max(potential_years_cleaned)
     return current_year != latest_year_found, latest_year_found
 
 
@@ -113,7 +114,7 @@ def check_page(content: str | bytes, url: str) -> Tuple[int, List[str]]:
     if found_marker:
         response_code = 1
         response.append(f"[OLD COPYRIGHT DATE] Latest Copyright from year {year}.")
-    if year:
+    if not found_marker and year:
         return -1,  response + [f"[NEW COPYRIGHT DATE] Latest Copyright from year {year}."]
 
     found_marker, keyword = check_potential_redirect(str(content))

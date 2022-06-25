@@ -230,13 +230,21 @@ def filter_orphan_likelihood_score(data: AnalysisDataType, domain: str, oldest_p
     return len(data)
 
 
-def check_orphan_status(data: AnalysisDataType, domain) -> None:
+def check_orphan_status(data: AnalysisDataType, domain) -> int:
     result_translation = {0: "[UNDECIDED      ]", 1: "[LIKELY ORPHAN  ]", -1: "[UNLIKELY ORPHAN]"}
     results = []
+    results_classification = []
+    amount_likely_orphans = 0
     for candidate_url, candidate_data in data.items():
         content_file = constants.PAGES_CONTENT_NAME_TEMPLATE.format(FILE_NAME=candidate_data['current_page_file'])
         current_page_content = util.read_from_bin_file(content_file)
         result, msg = check_page(current_page_content, candidate_url)
         for single_message in msg:
             results.append(f"{result_translation[result]} {candidate_url} {single_message}")
-    util.write_lines_to_file(constants.ANALYSIS_RESULT_FILE.format(DOMAIN=domain), results)
+
+        if result == 1:
+            amount_likely_orphans += 1
+        results_classification.append(f"{result_translation[result]} {candidate_url}")
+    util.write_lines_to_file(constants.ANALYSIS_RESULT_FILE.format(DOMAIN=domain), results_classification)
+    util.write_lines_to_file(constants.ALL_ANALYSIS_RESULT_FILE.format(DOMAIN=domain), results)
+    return amount_likely_orphans
