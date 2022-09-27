@@ -79,7 +79,7 @@ Binding the output directory to your local machine:
 You can specify where the ```Data``` directory of your docker container should be mounted into your local systemin the docker argument ```-v [absolute-path-to-target-directory]:/app/Data```.
 The ```Data``` directory contains all results & outputs of the processes and can have a size of multiple GB depending on how big your domain is and how many domains you have scanned already.
 
-If you don`t need the output you can remove the ```-v``` from the docker command
+If you don`t need the output, you can remove the ```-v``` from the docker command.
 
 ## Instructions
 ### Potential Orphan Detection
@@ -146,6 +146,7 @@ Available Arguments and flags for the detection process:
 
 *Example values are just for displaying how to declare them. They are no recommendations for your process runs.  
 For further information on the sf (size filter) and os (Orphan Score filter) parameters, have a look in the paper. There they are described in more detail.  
+
 The results of the analysis can be found in ```Data/Results/[domain-name]/[domain-name]_analysis_results```.
 
 ### Language & Modules
