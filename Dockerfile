@@ -1,18 +1,14 @@
-FROM python:3.8
-RUN useradd --create-home --shell /bin/bash user
+FROM python:3.10
 
-COPY ./requirements.txt /home/user/orphan-detection/requirements.txt
+COPY ./orphan_detection /app/orphan_detection
+COPY ./main.py /app/main.py
 
-# Get packages
-RUN apt-get update
-RUN apt-get install -y parallel
-RUN apt-get install -y curl
-#RUN apt-get install -y gcc
+COPY ./requirements.txt /app/requirements.txt
+
 RUN pip3 install --upgrade pip setuptools
-RUN pip3 install -r /home/user/orphan-detection/requirements.txt
+RUN pip3 install -r /app/requirements.txt
 
-WORKDIR /home/user
-#USER toolname_user
-COPY src/ /home/user/orphan-detection/src
-COPY Data/ /home/user/orphan-detection/Data
-CMD ["bash"]
+RUN mkdir /app/Data/
+WORKDIR /app
+ENTRYPOINT ["python", "main.py"]
+
