@@ -6,7 +6,7 @@
 
 # Orphan Detection
 Orphan-Detection-Python v.1.0.0  
-(c) 25.06.2022 - Felix Etzkorn
+25.06.2022 - Felix Etzkorn
 
 ## Acknowledgement
 
@@ -76,8 +76,8 @@ docker run -v [absolute-path-to-target-directory]:/app/Data -it --name my_detect
 ```
 
 Binding the output directory to your local machine:  
-in the docker argument ```-v [absolute-path-to-target-directory]:/app/Data``` you can specify where the ```Data``` directory should be mounted into your local system.
-Be careful, the ```Data``` directory contains all the results and outputs for all steps of the processes you run, so the ```Data``` can have a size of mutliple GB depending on how big your domain is.
+You can specify where the ```Data``` directory of your docker container should be mounted into your local systemin the docker argument ```-v [absolute-path-to-target-directory]:/app/Data```.
+The ```Data``` directory contains all results & outputs of the processes and can have a size of multiple GB depending on how big your domain is and how many domains you have scanned already.
 
 If you don`t need the output you can remove the ```-v``` from the docker command
 
@@ -96,27 +96,27 @@ docker run  -it --name my_detection --rm orphan-detection example.com -d --lc 5 
 
 Available Arguments and flags for the detection process:
 
-| Argument                 | Description                                                                                                                                                        | Accepted Values                                            | default value                       | example*                |
-|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|-------------------------------------|-------------------------|
-| -s                       | skip download phase and reuse already downloaded data from a previous run (date has to be of the previous download run!)                                           | date with the format YYYY-MM-DD                            | deactivated                         | -s 2022-06-26           |
-| -d                       | Use dynamic url detection (DUDe)                                                                                                                                   | -                                                          | deactivated                         | -d                      |
-| --current_sitemap_filter | Last seen dates for a page newer than the Date Value of the ``--current_sitemap_filter``<br> are discarded as still part of the domain                             | date with the format YYYY-MM-DD <br>or YYYY-MM <br>or YYYY | 1st of Jan in the year of execution | --csm 2022-06-25        |
-| --pc                     | Popularity cutoff (DUDe Parameter)                                                                                                                                 | decimal                                                    | 0.05                                | --pc 0.1                |
-| --st                     | Short-link cutoff (DUDe Parameter)                                                                                                                                 | decimal                                                    | 15                                  | --st 20                 |
-| --lt                     | Long-link threshold (DUDe Parameter)                                                                                                                               | decimal                                                    | 20                                  | --lt 50                 |
-| --lc                     | Long-link cutoff (DUDe Parameter)                                                                                                                                  | decimal                                                    | 0                                   | --lc 5                  |
-| --min_subdomain_size     | Min amount of pages of a single subdomain to be filtered with DUDe. Subdomains with less pages are ignored for the Dude Step. (DUDe Parameter)                     | decimal                                                    | 40                                  | --min_subdomain_size 20 |
-| --probe_delay            | Cooldown time (in sec) between two requests in the `probe`-step. Smaller values mean more requests per min to the domain / infrastructure.                         | decimal                                                    | 0.5 (sec)                           | --probe_delay 2.2       |
-| --probe_timeout          | Time (in sec) for a single request to timeout in the `probe`-step. Smaller values mean a higher potential to misinterpret a slow response as not running any more. | decimal                                                    | 5 (sec)                             | --probe_timeout 3.5     |
+| Argument                 | Description                                                                                                                                                        | Accepted Values                                            | Default Value                       | Example*                            |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|-------------------------------------|-------------------------------------|
+| -s                       | skip download phase and reuse already downloaded data from a previous run (date has to be of the previous download run!)                                           | date with the format YYYY-MM-DD                            | deactivated                         | -s 2022-06-26                       |
+| -d                       | Use dynamic url detection (DUDe)                                                                                                                                   | -                                                          | deactivated                         | -d                                  |
+| --current_sitemap_filter | Last seen dates for a page newer than the Date Value of the ``--current_sitemap_filter``<br> are discarded as still part of the domain                             | date with the format YYYY-MM-DD <br>or YYYY-MM <br>or YYYY | 1st of Jan in the year of execution | --current_sitemap_filter 2022-06-25 |
+| --pc                     | Popularity cutoff (DUDe Parameter)                                                                                                                                 | decimal                                                    | 0.05                                | --pc 0.1                            |
+| --st                     | Short-link cutoff (DUDe Parameter)                                                                                                                                 | decimal                                                    | 15                                  | --st 20                             |
+| --lt                     | Long-link threshold (DUDe Parameter)                                                                                                                               | decimal                                                    | 20                                  | --lt 50                             |
+| --lc                     | Long-link cutoff (DUDe Parameter)                                                                                                                                  | decimal                                                    | 0                                   | --lc 5                              |
+| --min_subdomain_size     | Min amount of pages of a single subdomain to be filtered with DUDe. Subdomains with less pages are ignored for the Dude Step. (DUDe Parameter)                     | decimal                                                    | 40                                  | --min_subdomain_size 20             |
+| --probe_delay            | Cooldown time (in sec) between two requests in the `probe`-step. Smaller values mean more requests per min to the domain / infrastructure.                         | decimal                                                    | 0.5 (sec)                           | --probe_delay 2.2                   |
+| --probe_timeout          | Time (in sec) for a single request to timeout in the `probe`-step. Smaller values mean a higher potential to misinterpret a slow response as not running any more. | decimal                                                    | 5 (sec)                             | --probe_timeout 3.5                 |
 
-*Example values are just for displaying how to declare them. They are no recommendations for your process runs.
+*Example values are just for displaying how to declare them. They are no recommendations for your process runs.  
 For further information on the Dude Parameter, have a look in the paper. There they are described in more detail.  
 For further information on the -s & -d flags, have a look in the description of the original implementation.  
 
 You can find the results of your run in ``Data/Results/[domain-name]/[domain-name]_potential_orphans.txt``.
 
 ### Analysis of Potential Orphans
-! Requires the ``Potential Orphan Detection``-process to be finished as the analysis re-uses the detection outputs for its own input.
+! Requires the ``Potential Orphan Detection``-process to be finished as the analysis re-uses the detection outputs for its own input.  
 ! Requires the ``-a``-flag in the command, otherwise the detection process is started.
 
 Example command for execution the detection with some arguments (with source code):  
@@ -131,7 +131,7 @@ docker run  -it --name my_detection --rm orphan-detection example.com -a --a_cpd
 
 Available Arguments and flags for the detection process:
 
-| Argument                 | Description                                                                                                                                                                                                                                                                                   | Accepted Values | default value | example*                     |
+| Argument                 | Description                                                                                                                                                                                                                                                                                   | Accepted Values | Default Value | Example*                     |
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|---------------|------------------------------|
 | -a                       | Activates the analysis process. Without this flag the detection process is started.                                                                                                                                                                                                           | -               | deactivated   | -a                           |
 | --a_cpd_timeout          | Time (in sec) for a single request to timeout during the download of pages in its current state. Smaller values mean a higher potential to misinterpret a slow response as not running any more.                                                                                              | decimal         | 5             | --a_cpd_timeout 3            |
@@ -144,7 +144,7 @@ Available Arguments and flags for the detection process:
 | --a_os_similarity_weight | Weight for the similarity score in the open score calculation                                                                                                                                                                                                                                 | decimal         | 0.9           | --a_os_similarity_weight 0.7 |
 | --a_os_cutoff            | Cutoff value for the orphan score to identify likely orphan page                                                                                                                                                                                                                              | decimal         | 0.7           | --a_os_cutoff 0.9            |
 
-*Example values are just for displaying how to declare them. They are no recommendations for your process runs.
+*Example values are just for displaying how to declare them. They are no recommendations for your process runs.  
 For further information on the sf (size filter) and os (Orphan Score filter) parameters, have a look in the paper. There they are described in more detail.  
 The results of the analysis can be found in ```Data/Results/[domain-name]/[domain-name]_analysis_results```.
 
