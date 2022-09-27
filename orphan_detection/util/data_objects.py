@@ -12,7 +12,7 @@ class DUDEParameters:
     short_prefix_cutoff: float
     large_link_len_threshold: int
     large_link_count: int
-    pc_value_threshold: float | int
+    subdomain_threshold: float | int
 
 
 @dataclass(frozen=True, slots=True)

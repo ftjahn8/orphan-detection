@@ -115,11 +115,11 @@ def dude_main(url_list: List[str], domain: str, dude_params: util.DUDEParameters
     orphans, excluded, prefixes = [], [], []
 
     for subdomain, subdomain_urls in subdomain_lookup.items():
-        pc_cutoff_value = len(subdomain_urls) * dude_params.popularity_cutoff
-        if pc_cutoff_value < dude_params.pc_value_threshold:  # skip subdomains with very small amount of urls
+        if len(subdomain_urls) < dude_params.subdomain_threshold:  # skip subdomains with very small amount of urls
             orphans += subdomain_urls
             continue
 
+        pc_cutoff_value = len(subdomain_urls) * dude_params.popularity_cutoff
         orphans_subdomain, excluded_subdomain, prefixes_subdomain =\
             dude_subdomain(set(subdomain_urls), subdomain, dude_params, pc_cutoff_value)
 
