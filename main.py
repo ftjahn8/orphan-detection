@@ -19,7 +19,7 @@ def main():
     parser.add_argument("domain", type=str, help="Enter a domain to find orphanage pages for")
 
     parser.add_argument("-s", type=str, dest="download_date", default=None,
-                        help="Enter the date of the previously downloaded archive data to skip the download phase.")
+                        help="Enter the date of the previously downloaded web archive data to skip the download phase.")
 
     parser.add_argument("-a", dest="analysis_flag", action='store_true',
                         help="Activates the analysis process. Without this flag the detection process is started.")
