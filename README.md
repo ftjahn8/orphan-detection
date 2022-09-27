@@ -117,7 +117,7 @@ You can find the results of your run in ``Data/Results/[domain-name]/[domain-nam
 
 ### Analysis of Potential Orphans
 ! Requires the ``Potential Orphan Detection``-process to be finished as the analysis re-uses the detection outputs for its own input.  
-! Requires the ``-a``-flag in the command, otherwise the detection process is started.
+! Requires the ``-a``-flag in the command, otherwise the detection process is started.  
 ! Requires the ``-s``-flag in the command, otherwise the detection process is started.
 
 Example command for execution the detection with some arguments (with source code):  
